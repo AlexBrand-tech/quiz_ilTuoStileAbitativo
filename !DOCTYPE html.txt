@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scopri il tuo Stile Cosmopolita</title>
+    <!-- Carica Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carica Google Font Playfair Display (come elegante alternativa a Flatory Serif) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        /* Definizione del font per l'estetica 'Flatory Serif' */
+        .font-flatory-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        body {
+            background-color: #f7f7f7; /* Sfondo leggero */
+        }
+        .container {
+            max-width: 640px; /* Massima larghezza per simulare una visualizzazione mobile */
+        }
+        /* Stili per le opzioni selezionabili */
+        .option-button {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+        }
+        .option-button:hover {
+            border-color: #a0a0a0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .option-button.selected {
+            border-color: #5d7494; /* Colore elegante di selezione */
+            background-color: #e6eaf0;
+            box-shadow: 0 6px 15px rgba(93, 116, 148, 0.2);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="font-flatory-serif antialiased text-gray-800">
+
+    <div id="app" class="container mx-auto p-4 md:p-6 min-h-screen flex flex-col items-center">
+
+        <!-- Header -->
+        <header class="w-full text-center py-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#3a4452]">Il tuo Stile Abitativo</h1>
+            <p class="mt-2 text-lg text-gray-500">Scopri la tua essenza cosmopolita in 5 domande.</p>
+        </header>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="w-full bg-white p-6 md:p-8 rounded-xl shadow-2xl transition-all duration-500">
+            <!-- Questions will be rendered here -->
+        </div>
+
+        <!-- Result Container (Hidden by default) -->
+        <div id="result-container" class="w-full bg-white p-8 md:p-10 rounded-xl shadow-2xl text-center hidden mt-8 transition-all duration-500">
+            <h2 class="text-2xl font-bold text-[#5d7494] mb-4">Il tuo Stile Rivelato!</h2>
+            <p class="text-xl mb-6">Il tuo arredamento ideale è:</p>
+            <div id="result-style" class="text-4xl font-extrabold text-[#3a4452] p-4 bg-gray-100 rounded-lg"></div>
+            <p id="result-description" class="mt-6 text-gray-600 leading-relaxed"></p>
+            <button onclick="resetQuiz()" class="mt-8 px-6 py-3 bg-[#5d7494] text-white rounded-full hover:bg-[#435978] transition duration-200 shadow-md">Riprova il Test</button>
+        </div>
+
+    </div>
+
+    <script>
+        // La struttura del quiz e i dati
+        const quizData = [
+            {
+                id: 1,
+                question: "Quando pensi alla tua casa ideale, qual è la sensazione che vuoi trasmettere?",
+                options: [
+                    { text: "Serenità e leggerezza", score: 1 },
+                    { text: "Eleganza silenziosa e rigore", score: 2 },
+                    { text: "Intimità e calore", score: 3 }
+                ]
+            },
+            {
+                id: 2,
+                question: "Se dovessi scegliere un dettaglio che non può mancare…",
+                options: [
+                    { text: "Spazi aperti e luce che filtra", score: 1 },
+                    { text: "Linee pulite e materiali preziosi", score: 2 },
+                    { text: "Texture ricche e dettagli artigianali", score: 3 }
+                ]
+            },
+            {
+                id: 3,
+                question: "Quale colore ti fa sentire ‘a casa’?",
+                options: [
+                    { text: "Toni chiari e naturali", score: 1 },
+                    { text: "Accenti scuri e contrasti sofisticati", score: 2 },
+                    { text: "Toni caldi e avvolgenti", score: 3 }
+                ]
+            },
+            {
+                id: 4,
+                question: "Una serata perfetta a casa tua è…",
+                options: [
+                    { text: "Aperitivo al tramonto in salotto", score: 1 },
+                    { text: "Cena elegante con pochi ospiti selezionati", score: 2 },
+                    { text: "Serata conviviale, chiacchiere e relax", score: 3 }
+                ]
+            },
+            {
+                id: 5,
+                question: "Se dovessi investire in un elemento chiave?",
+                options: [
+                    { text: "Arredi confortevoli ma leggeri", score: 1 },
+                    { text: "Finiture di pregio e pezzi iconici", score: 2 },
+                    { text: "Materiali autentici e accoglienti", score: 3 }
+                ]
+            }
+        ];
+
+        // Mappa dei risultati
+        const resultsMap = {
+            1: {
+                style: "Miami Style / Contemporaneo",
+                description: "Ami la luce, gli spazi aperti e un'atmosfera di perenne vacanza. Il tuo stile è fresco, dinamico e punta alla massima funzionalità senza rinunciare all'estetica pulita e ariosa."
+            },
+            2: {
+                style: "Luxury Minimal / Modern Chic",
+                description: "La tua casa è un rifugio di quiete e raffinatezza. Privilegi il design essenziale, le linee geometriche e i materiali di altissima qualità. Pochi pezzi, ma iconici e di grande impatto visivo."
+            },
+            3: {
+                style: "Classico / Caldo e Materico",
+                description: "Cerchi un'atmosfera avvolgente, ricca di storia e personalità. Il comfort è la tua priorità, espresso attraverso texture tattili, legni autentici e dettagli artigianali che raccontano una storia."
+            }
+        };
+
+        // Stato del quiz
+        let currentQuestionIndex = 0;
+        let scores = { 1: 0, 2: 0, 3: 0 };
+        let userAnswers = {}; // Per tenere traccia delle risposte selezionate per la visualizzazione
+
+        const quizContainer = document.getElementById('quiz-container');
+        const resultContainer = document.getElementById('result-container');
+        const resultStyle = document.getElementById('result-style');
+        const resultDescription = document.getElementById('result-description');
+
+        // Funzione per renderizzare la domanda corrente
+        function renderQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                calculateResult();
+                return;
+            }
+
+            const questionData = quizData[currentQuestionIndex];
+            const qNumber = currentQuestionIndex + 1;
+            const totalQuestions = quizData.length;
+
+            // Determina quale opzione era stata selezionata per questa domanda
+            const selectedScore = userAnswers[questionData.id];
+
+            let optionsHtml = questionData.options.map((option, index) => {
+                const isSelected = selectedScore === option.score;
+                const optionLetter = String.fromCharCode(65 + index); // A, B, C
+                return `
+                    <div
+                        class="option-button p-4 rounded-xl mb-3 ${isSelected ? 'selected' : 'bg-white'}"
+                        data-score="${option.score}"
+                        data-question-id="${questionData.id}"
+                        onclick="selectAnswer(this, ${questionData.id}, ${option.score})"
+                    >
+                        <span class="font-semibold text-[#5d7494] mr-2">${optionLetter}.</span>
+                        <span>${option.text}</span>
+                    </div>
+                `;
+            }).join('');
+
+            quizContainer.innerHTML = `
+                <div class="question-card transition-opacity duration-300">
+                    <!-- Progress Bar -->
+                    <div class="mb-6">
+                        <p class="text-sm text-center text-gray-500 mb-2">Domanda ${qNumber} di ${totalQuestions}</p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-[#5d7494] h-2.5 rounded-full" style="width: ${qNumber / totalQuestions * 100}%"></div>
+                        </div>
+                    </div>
+                    <!-- Question -->
+                    <h2 class="text-xl md:text-2xl font-semibold mb-6 text-center text-[#3a4452]">
+                        ${qNumber}. ${questionData.question}
+                    </h2>
+                    <!-- Options -->
+                    <div class="options-group">
+                        ${optionsHtml}
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-8">
+                        <button
+                            onclick="prevQuestion()"
+                            class="px-5 py-2.5 rounded-full text-[#5d7494] border border-[#5d7494] hover:bg-gray-100 transition duration-200 ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                            ${currentQuestionIndex === 0 ? 'disabled' : ''}
+                        >
+                            &larr; Indietro
+                        </button>
+                        <button
+                            id="next-button"
+                            onclick="nextQuestion()"
+                            class="px-5 py-2.5 rounded-full text-white bg-[#5d7494] hover:bg-[#435978] transition duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled
+                        >
+                            ${qNumber === totalQuestions ? 'Vedi Risultato' : 'Avanti &rarr;'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            // Abilita il pulsante 'Avanti' se una risposta è già stata data
+            if (selectedScore) {
+                document.getElementById('next-button').disabled = false;
+            }
+        }
+
+        // Funzione per gestire la selezione di una risposta
+        function selectAnswer(selectedElement, questionId, score) {
+            // Rimuove la classe 'selected' da tutte le opzioni della domanda corrente
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.classList.add('bg-white');
+            });
+
+            // Aggiunge la classe 'selected' all'opzione cliccata
+            selectedElement.classList.add('selected');
+            selectedElement.classList.remove('bg-white');
+
+            // Salva la risposta dell'utente
+            userAnswers[questionId] = score;
+
+            // Abilita il pulsante 'Avanti'
+            document.getElementById('next-button').disabled = false;
+        }
+
+        // Funzione per andare alla domanda successiva
+        function nextQuestion() {
+            if (userAnswers[quizData[currentQuestionIndex].id]) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        // Funzione per tornare alla domanda precedente
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        // Funzione per calcolare il risultato finale
+        function calculateResult() {
+            // Reset dei punteggi prima del calcolo
+            scores = { 1: 0, 2: 0, 3: 0 };
+
+            // Calcolo effettivo
+            Object.values(userAnswers).forEach(score => {
+                scores[score]++;
+            });
+
+            let winningScore = 0;
+            let winningStyle = 0;
+
+            // Trova lo stile con il punteggio maggiore
+            for (const [style, score] of Object.entries(scores)) {
+                if (score > winningScore) {
+                    winningScore = score;
+                    winningStyle = parseInt(style);
+                }
+            }
+
+            // Gestisce i pareggi (prende il primo stile vincente in caso di pareggio)
+            if (winningStyle === 0) {
+                 // Questo non dovrebbe accadere se le risposte sono tutte date
+                 // In caso di parità perfetta, ad esempio 2, 2, 1, prenderà il primo che ha 2
+                winningStyle = Object.keys(scores).find(key => scores[key] === winningScore);
+            }
+
+            const result = resultsMap[winningStyle];
+            resultStyle.textContent = result.style;
+            resultDescription.textContent = result.description;
+
+            // Visualizza il risultato e nasconde il quiz
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+        }
+
+        // Funzione per resettare il quiz
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            scores = { 1: 0, 2: 0, 3: 0 };
+            userAnswers = {};
+            quizContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            renderQuestion();
+        }
+
+        // Avvia il quiz
+        window.onload = renderQuestion;
+    </script>
+</body>
+</html>
